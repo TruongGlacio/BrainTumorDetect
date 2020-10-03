@@ -1,13 +1,5 @@
 import tensorflow as tf
 
-#from tensorflow.keras.models import Model
-#from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten
-#from tensorflow.keras.layers import concatenate, Conv2D, MaxPooling2D, Conv2DTranspose
-#from keras.layers import Input, merge, UpSampling2D,BatchNormalization
-#from tensorflow.keras.callbacks import ModelCheckpoint
-#from tensorflow.keras.optimizers import Adam
-#from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
 import numpy as np
 import matplotlib.pyplot as plt
 import skimage.io as io
@@ -21,15 +13,18 @@ from tensorflow.keras.layers import Conv2D,Input,ZeroPadding2D,BatchNormalizatio
 from tensorflow.keras.layers import MaxPooling2D as mMaxPooling2D
 from tensorflow.keras.layers import concatenate, Conv2DTranspose
 from tensorflow.keras.layers import Input, UpSampling2D
+from keras.preprocessing.image import array_to_img
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
+import cv2
+'exec(%matplotlib inline)'
 from tensorflow.keras import backend as K
-
+import scipy.misc
 import glob
 from pathlib import Path
 from skimage.data import image_fetcher
+from PIL import Image
 
 class BraTS2018:
 
@@ -45,7 +40,7 @@ class BraTS2018:
         global smooth
         global imageIndex
         #initial folder path and file path for this project
-        global BRAT2019_DATA_PATH_HGG  
+        #global BRAT2019_DATA_PATH_HGG  
         global WEIGHTS_FULL_BEST_FILE_PATH
         global WEIGHTS_CORE_BEST_FILE_PATH
         global WEIGHTS_ET_BEST_FILE_PATH  
@@ -56,6 +51,8 @@ class BraTS2018:
         WEIGHTS_FULL_BEST_FILE_PATH= "BraTSDataModel\weighsts\\weights-full-best.h5"    
         WEIGHTS_CORE_BEST_FILE_PATH= "BraTSDataModel\weighsts\\weights-core-best.h5"     
         WEIGHTS_ET_BEST_FILE_PATH= "BraTSDataModel\weighsts\\weights-ET-best.h5"        
+        print("WEIGHTS_FULL_BEST_FILE_PATH=",WEIGHTS_FULL_BEST_FILE_PATH)
+        
         imageIndex=3
         img_size = 240      #original img size is 240*240
         smooth = 0.005 
@@ -75,8 +72,11 @@ class BraTS2018:
         5: full tumor
         '''
     def SetImagePathForDetectoneObject(self, imagePath):
+        print("imagePath=",imagePath)
         if imagePath:
+            global BRAT2019_DATA_PATH_HGG            
             BRAT2019_DATA_PATH_HGG=imagePath
+            print("BRAT2019_DATA_PATH_HGG_After_changed =",BRAT2019_DATA_PATH_HGG)
     # function to read all data (training and label) and transform into numpy array    
     def create_data(self,src, mask, label=False):
         
@@ -177,6 +177,7 @@ class BraTS2018:
         global Label_ET
         global Label_all
         if BRAT2019_DATA_PATH_HGG:
+            print("BRAT2019_DATA_PATH_HGG=",BRAT2019_DATA_PATH_HGG)
             count = imageIndex
             pul_seq = 'flair'
             Flair = self.create_data_onesubject_val(BRAT2019_DATA_PATH_HGG, '**\*{}.nii.gz'.format(pul_seq), count, label=False)
@@ -286,7 +287,7 @@ class BraTS2018:
         x[:,:1,:,:] = Flair[89:90,:,:,:]   #choosing 90th slice as example
         x[:,1:,:,:] = T2[89:90,:,:,:] 
         #print("x=",x)
-        with tf.device('/cpu:0'):
+        with tf.device('/gpu:0'):
             pred_full = model.predict(x)
             print("pred_full=", pred_full)
         return pred_full
@@ -535,27 +536,55 @@ class BraTS2018:
         #plt.title('Ground Truth(All)')
         #plt.axis('off')
         #plt.imshow(Label_all[90, 0, :, :],cmap='gray')
-        
+        prediction,haveTumor=self.DrawContoursToPrediction(pred_full[0, 0, :, :])
         plt.subplot(245)
-        plt.title('Prediction (Full)')
+        plt.title(f'Prediction (Full) \n {haveTumor}')
         plt.axis('off')
-        plt.imshow(pred_full[0, 0, :, :],cmap='gray')
+        print("pred_full[0, 0, :, :]=",pred_full[0, 0, :, :])
+        
+        plt.imshow(prediction)#,cmap='gray')
         
         plt.subplot(2,4,6)
-        plt.title('Prediction (Core)')
+        plt.title(f'Prediction (Core)')#{haveTumor}')
         plt.axis('off')
-        plt.imshow(core[0, :, :],cmap='gray')
+        plt.imshow(core[0, :, :])#,cmap='gray')
+        prediction,haveTumor=self.DrawContoursToPrediction(pred_full[0, 0, :, :])
+        
         plt.subplot(2,4,7)
-        plt.title('Prediction (ET)')
+        plt.title(f'Prediction (ET)')#{haveTumor}')
         plt.axis('off')
-        plt.imshow(ET[0, :, :],cmap='gray')
+        plt.imshow(ET[0, :, :])#,cmap='gray')
+        prediction,haveTumor=self.DrawContoursToPrediction(pred_full[0, 0, :, :])
         
         plt.subplot(2,4,8)
-        plt.title('Prediction (All)')
+        plt.title(f'Prediction (All)')#{haveTumor}')
         plt.axis('off')
-        plt.imshow(tmp[0, :, :],cmap='gray')
+        plt.imshow(tmp[0, :, :])#,cmap='gray')
         
         plt.show()        
+    def DrawContoursToPrediction(self,Prediction):
+        imagerank4 = np.array(Prediction * 255, dtype = np.uint8)        
+        gray = cv2.GaussianBlur(imagerank4, (5, 5), 0)
+        
+        # find contours in thresholded image, then grab the largest one
+        im2, contours, hierarchy = cv2.findContours(imagerank4, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        #print('contours=',contours)
+        
+        cv2.drawContours(Prediction, contours, -1, (255,0,0), 3)
+        areAll=[]
+        for i in range(len(contours)):
+            area= cv2.contourArea(contours[i])  
+            areAll.append(area)
+            print("area {",i,"}=",area)       
+            
+        if max(areAll) >20:        
+            haveTumor=f'--> Have tumor, Tumor Area={max(areAll)} pixels'
+        else:
+            haveTumor="--> Haven't tumor"         
+        return Prediction,haveTumor
+#        cnts = imutils.grab_contours(cnts)
+        
+        
     def BraTS2018Function(self):
         print("Function BraTS2018Function "); 
         self.IntinialDefine()
