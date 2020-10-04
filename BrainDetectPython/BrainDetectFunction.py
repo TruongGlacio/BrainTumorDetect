@@ -457,11 +457,11 @@ class BrainDetectFunction:
         model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
         print("Xtrain1=", X_train_, "YTrain1=", Y_train_,"X_Val=", X_val_, "Y_Val=",Y_val_)
                
-        model.fit(x=X_train_, y=Y_train_, batch_size=12, epochs=52,validation_data=(X_val_, Y_val_))#steps_per_epoch=100, validation_steps=10)
+        model.fit(x=X_train_, y=Y_train_, batch_size=10, epochs=25,validation_data=(X_val_, Y_val_))#steps_per_epoch=100, validation_steps=10)
         
         test_loss, test_acc = model.evaluate(X_test_, Y_test_, verbose=2)   
-        print("test_acc=", test_acc)
-        
+    print("test_acc=", test_acc)
+    
         if not outPutImageDir:
             modelPath="data/output/BrainDetectModel.h5"
         else:
@@ -588,7 +588,8 @@ class BrainDetectFunction:
         self.ShowBarChartFunction();
         self.BuildTrainingModelFunction();
         self.DetectObjectAndShowResultFunction();
-        print("End programs!")    
+        print("End programs!")
+        return
     #def InitialModelTrained(self):
                        
         
@@ -680,5 +681,8 @@ class BrainDetectFunction:
     def __init__(self):
         print("BrainDetectFunction class init")
         self.DefineGlobalPath()
-        #self.InitialModelTrained()
-        
+        self.SetDataPath('data')
+    
+if __name__ == "__main__":
+    brainDetectFunction = BrainDetectFunction()
+    brainDetectFunction.BrainDetectFunction()
