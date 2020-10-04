@@ -457,10 +457,10 @@ class BrainDetectFunction:
         model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
         print("Xtrain1=", X_train_, "YTrain1=", Y_train_,"X_Val=", X_val_, "Y_Val=",Y_val_)
                
-        model.fit(x=X_train_, y=Y_train_, batch_size=10, epochs=25,validation_data=(X_val_, Y_val_))#steps_per_epoch=100, validation_steps=10)
+        model.fit(x=X_train_, y=Y_train_, batch_size=10, epochs=19,validation_data=(X_val_, Y_val_))#steps_per_epoch=100, validation_steps=10)
         
         test_loss, test_acc = model.evaluate(X_test_, Y_test_, verbose=2)   
-    print("test_acc=", test_acc)
+        print("test_acc=", test_acc)
     
         if not outPutImageDir:
             modelPath="data/output/BrainDetectModel.h5"
@@ -496,13 +496,13 @@ class BrainDetectFunction:
         print("train_acc_max=",max(train_acc))
         
         plt.plot(val_acc, label='Validation Accuracy')
-        print("val_acc_max=",max(val_acc))
+        print("val_acc_max=",max(train_acc))
         
-        plt.title(f'Accuracy={max(val_acc)}')
+        plt.title(f'Train Accuracy={max(train_acc)} /n Validation Accuracy={max(val_acc)}')
         plt.legend()
         print("image show5: Accuracy")    
         plt.show(block=False)
-        plt.pause(timerForShowImage)
+        plt.pause(timerForShowImage+5)
         plt.close()       
         
     def plot_confusion_matrix(self,cm, classes, normalize=False, title='Confusion matrix',cmap=plt.cm.Blues):
@@ -532,7 +532,7 @@ class BrainDetectFunction:
         plt.xlabel('Predicted label')
         print("image show6, confusion matrix")    
         plt.show(block=False)
-        plt.pause(timerForShowImage)
+        plt.pause(timerForShowImage+5)
         plt.close()         
         
     def DetectObjectAndShowResultFunction(self): #view result accurary
