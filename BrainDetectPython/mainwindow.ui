@@ -207,8 +207,8 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>160</y>
-      <width>121</width>
+      <y>110</y>
+      <width>251</width>
       <height>17</height>
      </rect>
     </property>
@@ -219,38 +219,6 @@
     </property>
     <property name="text">
      <string>Detect Mode</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBox_BratsData">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>190</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Using Brats data</string>
-    </property>
-    <property name="checkable">
-     <bool>false</bool>
-    </property>
-    <property name="checked">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBox_TrainingWithMultiLabel">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>90</y>
-      <width>141</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Training With Multi Label</string>
     </property>
    </widget>
   </widget>

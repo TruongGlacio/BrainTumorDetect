@@ -514,8 +514,9 @@ class BraTS2018:
     def PlotDetectBrainTumor(self,haveTumor,pred_full,pred_core, pred_ET,Li):
         print("Function PlotDetectBrainTumor "); 
         if not haveTumor:
-            savePath=OutputPath+SubOutputPath_No   
-            imagerank4 = np.array((T1[90, 0, :, :]) * 255, dtype = np.uint8)                    
+            savePath=OutputPath+SubOutputPath_No 
+            T1_=T1[90, 0, :, :].copy()
+            imagerank4 = np.array(T1_ * 255, dtype = np.uint8)                    
             self.SaveImageFromprediction(imagerank4,savePath)
             
             plt.figure(figsize=(15,10))
@@ -555,11 +556,12 @@ class BraTS2018:
         plt.subplot(241)
         plt.title('T1')
         plt.axis('off')
+        prediction,haveTumor=self.DrawContoursToPrediction(haveTumor,pred_full[0, 0, :, :])
         plt.imshow(T1[90, 0, :, :],cmap='gray')
         
         plt.subplot(242)
         plt.title('T2')
-        plt.axis('off')
+        plt.axis('off')        
         plt.imshow(T2[90, 0, :, :],cmap='gray')
             
         plt.subplot(243)
@@ -592,30 +594,27 @@ class BraTS2018:
         #plt.title('Ground Truth(All)')
         #plt.axis('off')
         #plt.imshow(Label_all[90, 0, :, :],cmap='gray')
-        prediction,haveTumor=self.DrawContoursToPrediction(haveTumor,pred_full[0, 0, :, :])
-        plt.subplot(245)
+        prediction,haveTumor=self.DrawContoursToPrediction(haveTumor,pred_full[0, 0, :, :],)
+        plt.subplot(2,4,5)
         plt.title(f'Prediction (Full) \n {haveTumor}')
         plt.axis('off')
         print("pred_full[0, 0, :, :]=",pred_full[0, 0, :, :])
         
-        plt.imshow(prediction)#,cmap='gray')
-        
+        plt.imshow(prediction,cmap='gray')    
         plt.subplot(2,4,6)
-        plt.title(f'Prediction (Core)')#{haveTumor}')
+        #plt.title(f'Prediction (Core)')#{haveTumor}')
         plt.axis('off')
-        plt.imshow(core[0, :, :])#,cmap='gray')
-        prediction,haveTumor=self.DrawContoursToPrediction(haveTumor,pred_full[0, 0, :, :])
+        #plt.imshow(core[0, :, :],cmap='gray')
         
         plt.subplot(2,4,7)
-        plt.title(f'Prediction (ET)')#{haveTumor}')
+        #plt.title(f'Prediction (ET)')#{haveTumor}')
         plt.axis('off')
-        plt.imshow(ET[0, :, :])#,cmap='gray')
-        prediction,haveTumor=self.DrawContoursToPrediction(haveTumor,pred_full[0, 0, :, :])
+        #plt.imshow(ET[0, :, :],cmap='gray')  
         
         plt.subplot(2,4,8)
-        plt.title(f'Prediction (All)')#{haveTumor}')
+        #plt.title(f'Prediction (All)')#{haveTumor}')
         plt.axis('off')
-        plt.imshow(tmp[0, :, :])#,cmap='gray')
+        #plt.imshow(tmp[0, :, :],cmap='gray')
         
         plt.show()        
     
@@ -639,7 +638,8 @@ class BraTS2018:
         im2, contours, hierarchy = cv2.findContours(gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         #print('contours=',contours)
         
-        cv2.drawContours(Prediction, contours, -1, (255,0,0), 3)
+        cv2.drawContours(gray, contours, -1, (255,0,0), 2)
+        
         areAll=[]
         for i in range(len(contours)):
             area= cv2.contourArea(contours[i])  
@@ -655,7 +655,7 @@ class BraTS2018:
             
             
         self.SaveImageFromprediction(imagerank4,savePath)
-        return Prediction,haveTumorString
+        return gray,haveTumorString
 #        cnts = imutils.grab_contours(cnts)
         
         

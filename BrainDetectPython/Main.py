@@ -1,11 +1,8 @@
-from BrainTumor_Mask_R_CNN import BrainTumorMask_RCNN
 from BraTS2018 import BraTS2018 
-from BrainDetectFunction import BrainDetectFunction
 from mainwindow import MainScreen
 import sys 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QCoreApplication
-from FileManager import FileManager
 from tkinter import *
 from tkinter import filedialog
 import time
@@ -27,17 +24,11 @@ class Main:
         print("Main Funtion class Main")    
         app = QApplication(sys.argv) # 
         global mMainScreen
-        global mBrainDetectFunction     
-        global mFileManager
         global mBraTS2018
-        global mBrainTumorMask_RCNN
         mMainScreen = MainScreen()
-        mFileManager=FileManager()
         mBraTS2018=BraTS2018()
         mMainScreen.show()			
         mMainScreen.ui.label_NotifyStatus.setText( "While training data, please wait until finished")  
-        mBrainDetectFunction=BrainDetectFunction()
-        mBrainTumorMask_RCNN=BrainTumorMask_RCNN()        
         mMainScreen.ui.label_NotifyStatus.setText("The training process has been completed, choose a photo to segmentation")        
         mMainScreen.ui.pushButton_OpenFileBroswer.clicked.connect(self.FileBroswer)          
         mMainScreen.ui.pushButton_segmentation.clicked.connect(self.DetectObject)      #  
@@ -46,7 +37,6 @@ class Main:
         mMainScreen.ui.radioButton_trainingMode.clicked.connect(self.SetModeTraining)
         mMainScreen.ui.radioButtonDetectedMode.setChecked(True)       
         mMainScreen.ui.pushButton_trainingData.setEnabled(False)
-        mMainScreen.ui.checkBox_TrainingWithMultiLabel.setCheckable(False)        
         sys.exit(app.exec_())
 
     def FileBroswer(self):
@@ -57,21 +47,12 @@ class Main:
         currdir=os.getcwd()
         root =Tk()        
         if mMainScreen.ui.radioButton_trainingMode.isChecked():
-            filename = filedialog.askdirectory(parent=root, initialdir=currdir, title='Please select a directory')            
-            if  mMainScreen.ui.checkBox_TrainingWithMultiLabel.isChecked():  
-                mBrainTumorMask_RCNN.SetInputDataPath(filename)
-                mBrainTumorMask_RCNN.SetOutputPath(filename)
-                
-            else:       
-                print("selectMode = trainingMode") 
-                mBrainDetectFunction.SetDataPath(filename)                    
+            filename = filedialog.askdirectory(parent=root, initialdir=currdir, title='Please select a directory')                   
+            print("selectMode = trainingMode") 
         else:
             print("selectMode = mDetectMode") 
-            if  mMainScreen.ui.checkBox_BratsData.isChecked():
-                filename = filedialog.askdirectory(parent=root, initialdir=currdir, title='Please select a directory')
-                mBraTS2018.SetImagePathForDetectoneObject(filename)
-            else:    
-                filename = filedialog.askopenfilename(parent=root, initialdir=currdir, title='Please select a directory')
+            filename = filedialog.askdirectory(parent=root, initialdir=currdir, title='Please select a directory')
+            mBraTS2018.SetImagePathForDetectoneObject(filename)
            
         mMainScreen.ui.lineEdit_FolderPath.setText(filename) 
         
@@ -86,9 +67,6 @@ class Main:
         mMainScreen.ui.pushButton_trainingData.setText("Training Data")             
         mMainScreen.ui.radioButtonDetectedMode.setChecked(False)
         mMainScreen.ui.radioButton_trainingMode.setChecked(True)
-        mMainScreen.ui.checkBox_BratsData.setChecked(False)
-        mMainScreen.ui.checkBox_BratsData.setCheckable(False)
-        mMainScreen.ui.checkBox_TrainingWithMultiLabel.setCheckable(True)
         mMainScreen.ui.pushButton_segmentation.setEnabled(False)        
         mMainScreen.ui.pushButton_trainingData.setEnabled(True)        
         
@@ -98,9 +76,6 @@ class Main:
         print("selectMode =",selectMode)                        
         mMainScreen.ui.radioButtonDetectedMode.setChecked(True)
         mMainScreen.ui.radioButton_trainingMode.setChecked(False)        
-        mMainScreen.ui.checkBox_BratsData.setCheckable(True)   
-        mMainScreen.ui.checkBox_TrainingWithMultiLabel.setChecked(False)
-        mMainScreen.ui.checkBox_TrainingWithMultiLabel.setCheckable(False)  
         mMainScreen.ui.pushButton_segmentation.setEnabled(True)        
         mMainScreen.ui.pushButton_trainingData.setEnabled(False)
         
@@ -109,17 +84,9 @@ class Main:
         print("selectMode =",selectMode)    
         mMainScreen.ui.label_NotifyStatus.setText( "Detect Object mode")          
         if mMainScreen.ui.radioButtonDetectedMode.isChecked():
-            if  mMainScreen.ui.checkBox_BratsData.isChecked():
-                mBraTS2018.BraTS2018Function()
-                print("selectMode is DetectMode")  
-            else:
-                print("selectMode is DetectMode")  
-                filename= mMainScreen.ui.lineEdit_FolderPath.text()
-                if filename:
-                    statusPath=mBrainDetectFunction.DetectSpecialImage(filename)    
-                    if not statusPath:
-                        mMainScreen.ui.label_NotifyStatus.setText("Model file exit, please insert them to folder data/output/, with name BrainDetectModel.h5")                            
-                
+            mBraTS2018.BraTS2018Function()
+            print("selectMode is DetectMode")  
+ 
     def TrainingData(seft): 
         print("DetectObject Funtion class Main")
         print("selectMode =",selectMode)                
@@ -127,14 +94,9 @@ class Main:
             print("selectMode is trainingMode")  
             mMainScreen.ui.label_NotifyStatus.setText( "While training data, please wait until finished")  
             mMainScreen.ui.pushButton_trainingData.setText("Started Training")   
-            time.sleep(1) # Delay for 5 seconds.            
-            if mMainScreen.ui.checkBox_TrainingWithMultiLabel.isChecked():
-                
-                mBrainTumorMask_RCNN.TrainingDataModel()     
-            else:
-                
-                mBrainDetectFunction.BrainDetectFunction()                
-
+            time.sleep(1) # Delay for 5 seconds. 
+            
+            #training code in here
             mMainScreen.ui.pushButton_trainingData.setText("Stoped Training")                      
             mMainScreen.ui.label_NotifyStatus.setText("The training process has been completed, choose a photo to segmentation")          
 if __name__ == "__main__":    
