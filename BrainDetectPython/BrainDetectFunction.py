@@ -457,7 +457,7 @@ class BrainDetectFunction:
         model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
         print("Xtrain1=", X_train_, "YTrain1=", Y_train_,"X_Val=", X_val_, "Y_Val=",Y_val_)
                
-        model.fit(x=X_train_, y=Y_train_, batch_size=12, epochs=52,validation_data=(X_val_, Y_val_))#steps_per_epoch=100, validation_steps=10)
+        model.fit(x=X_train_, y=Y_train_, batch_size=10, epochs=32,validation_data=(X_val_, Y_val_))#steps_per_epoch=100, validation_steps=10)
         
         test_loss, test_acc = model.evaluate(X_test_, Y_test_, verbose=2)   
         print("test_acc=", test_acc)
@@ -478,9 +478,10 @@ class BrainDetectFunction:
         val_loss = history['val_loss']
         train_acc = history['accuracy']
         val_acc = history['val_accuracy']
-        
         # Loss
-        plt.figure(1)
+       
+        fig= plt.figure(1) 
+        fig.set_size_inches(10, 8)
         plt.plot(train_loss, label='Training Loss')
         plt.plot(val_loss, label='Validation Loss')
         plt.title('Loss')
@@ -489,9 +490,12 @@ class BrainDetectFunction:
         plt.show(block=False)
         plt.pause(timerForShowImage)
         plt.close() 
+        fig.savefig('Training_And_Validation_Loss.png', dpi=150)                 
+        
         
         # Accuracy
-        plt.figure(2)
+        fig= plt.figure(2) 
+        fig.set_size_inches(10, 8)        
         plt.plot(train_acc, label='Training Accuracy')
         print("train_acc_max=",max(train_acc))
         
@@ -499,11 +503,12 @@ class BrainDetectFunction:
         print("val_acc_max=",max(val_acc))
         
         plt.title(f'Accuracy={max(val_acc)}')
-        plt.legend()
+        plt.legend()  
         print("image show5: Accuracy")    
         plt.show(block=False)
         plt.pause(timerForShowImage)
         plt.close()       
+        fig.savefig('Training_And_Validation_Accuracy.png', dpi=150)                         
         
     def plot_confusion_matrix(self,cm, classes, normalize=False, title='Confusion matrix',cmap=plt.cm.Blues):
         print("Function plot_confusion_matrix");
@@ -511,7 +516,21 @@ class BrainDetectFunction:
         This function prints and plots the confusion matrix.
         Normalization can be applied by setting `normalize=True`.
         """
-        plt.figure(figsize = (6,6))
+        temp=[]
+        cm_temp=[]
+        #convert number image to %
+        for i1 in cm:
+            #for j1 in i1:
+                #temp.append(j1/sum(i1))
+                
+            i1=i1/sum(i1)
+            cm_temp.append(i1)
+        cm=cm_temp
+        cm=np.array(cm)
+        print("cm=",cm)
+        
+        fig= plt.figure(2) 
+        fig.set_size_inches(9, 9)  
         plt.imshow(cm, interpolation='nearest', cmap=cmap)
         plt.title(title)
         plt.colorbar()
@@ -532,6 +551,7 @@ class BrainDetectFunction:
         plt.xlabel('Predicted label')
         print("image show6, confusion matrix")    
         plt.show(block=False)
+        fig.savefig(f'{title}.png', dpi=150)                                 
         plt.pause(timerForShowImage)
         plt.close()         
         
@@ -546,6 +566,8 @@ class BrainDetectFunction:
         print('Val Accuracy  = %.2f' % accuracy)
         
         confusion_mtx = confusion_matrix(Y_val_, predictions) 
+        print(' confusion_mtx  =',confusion_mtx)
+        
         cm = self.plot_confusion_matrix(confusion_mtx, classes = labels, normalize=False, title='Confusion matrix With Validation Data')
         
         # validate on val set
@@ -556,9 +578,11 @@ class BrainDetectFunction:
         print('Val Accuracy = %.2f' % accuracy)
     
         confusion_mtx = confusion_matrix(Y_test_, predictions) 
+        print(' confusion_mtx  =',confusion_mtx)        
         cm = self.plot_confusion_matrix(confusion_mtx, classes = labels, normalize=False, title='Confusion matrix With Test Data')
         
-        plt.figure(3)        
+        fig= plt.figure(3) 
+        fig.set_size_inches(20, 15)          
         for i in range(20):
             plt.subplot(3, 7, i+1)         
             plt.imshow(X_test_[i])
