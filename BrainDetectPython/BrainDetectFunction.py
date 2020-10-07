@@ -390,7 +390,7 @@ class BrainDetectFunction:
         y=Y;
     
         
-        X_train_, Y_train_, X_val_, Y_val_, X_test_, Y_test_ = self.split_data(X, y, test_size=0.3)
+        X_train_, Y_train_, X_val_, Y_val_, X_test_, Y_test_ = self.split_data(X, y, test_size=0.1)
         print ("number of training examples = " + str(X_train.shape[0]))
         print ("number of validation examples = " + str(X_val_.shape[0]))
         print ("number of test examples = " + str(X_test_.shape[0]))
@@ -461,7 +461,7 @@ class BrainDetectFunction:
         model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
         print("Xtrain1=", X_train_, "YTrain1=", Y_train_,"X_Val=", X_val_, "Y_Val=",Y_val_)
                
-        model.fit(x=X_train_, y=Y_train_, batch_size=12, epochs=22,validation_data=(X_val_, Y_val_))#steps_per_epoch=100, validation_steps=10)
+        model.fit(x=X_train_, y=Y_train_, batch_size=12, epochs=52,validation_data=(X_val_, Y_val_))#steps_per_epoch=100, validation_steps=10)
         
         test_loss, test_acc = model.evaluate(X_test_, Y_test_, verbose=2)   
         print("test_acc=", test_acc)
