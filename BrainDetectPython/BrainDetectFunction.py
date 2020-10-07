@@ -76,14 +76,14 @@ class BrainDetectFunction:
         
         global EXAMPLE_IMAGENAME;
         global timerForShowImage
-        
+        global outputResult
         #os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'        
         augmented_data_path="";
         outPutImageDirYes= outPutImageDir+ "/yes"
         outPutImageDirNo=outPutImageDir+ "/no"
         
         augmented_data_path= outPutImageDir;
-        
+        outputResult='outputResult'
         augmented_yes =augmented_data_path+'/yes'
         augmented_no = augmented_data_path+'/no'
         timerForShowImage=3
@@ -97,6 +97,8 @@ class BrainDetectFunction:
             os.makedirs(outPutImageDirYes)
         if not os.path.isdir(outPutImageDirNo):
             os.makedirs(outPutImageDirNo)
+        if not os.path.isdir(outputResult):
+            os.makedirs(outputResult)        
             
             
     def augment_data(self,file_dir, n_generated_samples, save_to_dir):
@@ -445,6 +447,8 @@ class BrainDetectFunction:
         tf.keras.backend.clear_session()        
         global history
         global model
+        global test_acc
+        global test_loss
         physical_devices = tf.config.experimental.list_physical_devices('GPU')
         if len(physical_devices) > 0:
             tf.config.experimental.set_memory_growth(physical_devices[0], True)              
@@ -457,7 +461,7 @@ class BrainDetectFunction:
         model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
         print("Xtrain1=", X_train_, "YTrain1=", Y_train_,"X_Val=", X_val_, "Y_Val=",Y_val_)
                
-        model.fit(x=X_train_, y=Y_train_, batch_size=10, epochs=32,validation_data=(X_val_, Y_val_))#steps_per_epoch=100, validation_steps=10)
+        model.fit(x=X_train_, y=Y_train_, batch_size=12, epochs=22,validation_data=(X_val_, Y_val_))#steps_per_epoch=100, validation_steps=10)
         
         test_loss, test_acc = model.evaluate(X_test_, Y_test_, verbose=2)   
         print("test_acc=", test_acc)
@@ -484,13 +488,15 @@ class BrainDetectFunction:
         fig.set_size_inches(10, 8)
         plt.plot(train_loss, label='Training Loss')
         plt.plot(val_loss, label='Validation Loss')
+        plt.plot(test_loss, label='Test Loss')        
         plt.title('Loss')
         plt.legend()
         print("image show4: Loss")    
         plt.show(block=False)
         plt.pause(timerForShowImage)
         plt.close() 
-        fig.savefig('Training_And_Validation_Loss.png', dpi=150)                 
+        Training_And_Validation_Loss=outputResult+'/Training_And_Validation_Loss.png'
+        fig.savefig(Training_And_Validation_Loss, dpi=150)                 
         
         
         # Accuracy
@@ -502,13 +508,17 @@ class BrainDetectFunction:
         plt.plot(val_acc, label='Validation Accuracy')
         print("val_acc_max=",max(val_acc))
         
-        plt.title(f'Accuracy={max(val_acc)}')
+        #plt.plot(test_acc, label='Test Accuracy')
+        print("test_acc_max=",test_acc)       
+        
+        plt.title(f'Train Accuracy={max(train_acc)} \n Validation Accuracy={max(val_acc)} \n Test Accuracy={test_acc}')
         plt.legend()  
         print("image show5: Accuracy")    
         plt.show(block=False)
         plt.pause(timerForShowImage)
         plt.close()       
-        fig.savefig('Training_And_Validation_Accuracy.png', dpi=150)                         
+        Training_And_Validation_Accuracy=outputResult+'/Training_And_Validation_Accuracy.png'        
+        fig.savefig(Training_And_Validation_Accuracy, dpi=150)                         
         
     def plot_confusion_matrix(self,cm, classes, normalize=False, title='Confusion matrix',cmap=plt.cm.Blues):
         print("Function plot_confusion_matrix");
@@ -520,9 +530,6 @@ class BrainDetectFunction:
         cm_temp=[]
         #convert number image to %
         for i1 in cm:
-            #for j1 in i1:
-                #temp.append(j1/sum(i1))
-                
             i1=i1/sum(i1)
             cm_temp.append(i1)
         cm=cm_temp
@@ -551,9 +558,11 @@ class BrainDetectFunction:
         plt.xlabel('Predicted label')
         print("image show6, confusion matrix")    
         plt.show(block=False)
-        fig.savefig(f'{title}.png', dpi=150)                                 
         plt.pause(timerForShowImage)
-        plt.close()         
+        plt.close()  
+        confusion_matrix_Path=outputResult+'/'+title+'.png'
+        fig.savefig(confusion_matrix_Path, dpi=150)                                 
+        
         
     def DetectObjectAndShowResultFunction(self): #view result accurary
         print("Function DetectObjectAndShowResultFunction");
@@ -593,7 +602,8 @@ class BrainDetectFunction:
         plt.show(block=False)
         plt.pause(timerForShowImage)
         plt.close()         
-    #def SaveModelTrained(self, model):
+        TestExamplePlot_Path=outputResult+'/TestExamplePlot.png'
+        fig.savefig(TestExamplePlot_Path, dpi=200)           
         
         
     def BrainDetectFunction(self):
@@ -603,7 +613,6 @@ class BrainDetectFunction:
             self.InitialDataFolderPath();
             
         self.CreatFolderPaths(); 
-        #self.InitialModelTrained()        
         self.LoadAgumentData();
         self.LoadDataAndPlotSample();
         self.ImageProccessFuntionc(inPutImageDir+EXAMPLE_IMAGENAME);
@@ -613,7 +622,6 @@ class BrainDetectFunction:
         self.BuildTrainingModelFunction();
         self.DetectObjectAndShowResultFunction();
         print("End programs!")    
-    #def InitialModelTrained(self):
                        
         
     def DetectSpecialImage(self,imagePath):
