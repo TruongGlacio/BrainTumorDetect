@@ -13,7 +13,7 @@ from tensorflow.keras.layers import Conv2D,Input,ZeroPadding2D,BatchNormalizatio
 from tensorflow.keras.layers import MaxPooling2D as mMaxPooling2D
 from tensorflow.keras.layers import concatenate, Conv2DTranspose
 from tensorflow.keras.layers import Input, UpSampling2D
-from keras.preprocessing.image import array_to_img
+from tensorflow.keras.preprocessing.image import array_to_img
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -83,6 +83,13 @@ class BraTS2018:
         4: enhancing tumor
         5: full tumor
         '''
+        #os.environ['CUDA_VISIBLE_DEVICES'] = "0"                    
+        physical_devices = tf.config.experimental.list_physical_devices('GPU')
+        if len(physical_devices) > 0:
+            print("GPU device is exit")
+            tf.config.experimental.set_memory_growth(physical_devices[0], True)
+        else:
+            print("GPU device is not exit")            
     def SetImagePathForDetectoneObject(self, imagePath):
         print("imagePath=",imagePath)
         if imagePath:
@@ -307,9 +314,9 @@ class BraTS2018:
         x[:,:1,:,:] = Flair[89:90,:,:,:]   #choosing 90th slice as example
         x[:,1:,:,:] = T2[89:90,:,:,:] 
         #print("x=",x)
-        with tf.device('/gpu:0'):
-            pred_full = model_full.predict(x)
-            print("pred_full=", pred_full)
+        #with tf.device('/gpu:0'):
+        pred_full = model_full.predict(x)
+        print("pred_full=", pred_full)
         return pred_full
 
     def crop_tumor_tissue(self,x, pred, size):   #   input: x:T1c image , pred:prediction of full tumor ,size default  64x64
@@ -482,9 +489,9 @@ class BraTS2018:
        # model_core.load_weights(weights_CORE_BEST_FILE_PATH)
         #model_ET = self.unet_model_nec3()
         #model_ET.load_weights(weights_ET_BEST_FILE_PATH)
-        with tf.device('/gpu:0'):
-            pred_core = model_core.predict(Crop)
-            pred_ET = model_ET.predict(Crop)
+        #with tf.device('/gpu:0'):
+        pred_core = model_core.predict(Crop)
+        pred_ET = model_ET.predict(Crop)
         return pred_core, pred_ET
     
     def paint_color_algo(self,pred_full, pred_core , pred_ET , li):   #input image is [n,1, y, x]

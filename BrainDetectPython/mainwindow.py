@@ -30,7 +30,7 @@ class MainScreen(QWidget):
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1248, 311)
+        MainWindow.resize(1448, 311)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
@@ -63,7 +63,7 @@ class Ui_MainWindow(object):
         self.pushButton_segmentation.setObjectName("pushButton_segmentation")
         self.hboxlayout.addWidget(self.pushButton_segmentation)
         self.horizontalLayoutWidget_2 = QtWidgets.QWidget(self.centralwidget)
-        self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(9, 10, 1221, 32))
+        self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(9, 10, 1021, 32))
         self.horizontalLayoutWidget_2.setObjectName("horizontalLayoutWidget_2")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget_2)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
