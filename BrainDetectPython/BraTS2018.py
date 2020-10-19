@@ -639,10 +639,11 @@ class BraTS2018:
         imageSave.save(filePath)                
         
     def DrawContoursToPrediction(self,haveTumor,Prediction):
-        imagerank4 = np.array(Prediction * 255, dtype = np.uint8)        
+        imagerank4 = np.array(Prediction * 255, dtype = np.uint8)    
+        
         gray = cv2.GaussianBlur(imagerank4, (5, 5), 0)
         # find contours in thresholded image, then grab the largest one
-        im2, contours, hierarchy = cv2.findContours(gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cv2.findContours(gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         #print('contours=',contours)
         
         cv2.drawContours(gray, contours, -1, (255,0,0), 2)
